@@ -45,9 +45,9 @@
       "deviceId": "dev_1794918685971_ujxw9bd",
       "name": "Hamzah",
       "phone": "9999888877",
-      "status": "pending",
+      "status": "approved",
       "requestedAt": "2026-11-17T13:20:11.482Z",
-      "approvedAt": null,
+      "approvedAt": "2026-11-17T13:21:09.997Z",
       "blockedAt": null
     }
   ]
