@@ -5,10 +5,10 @@
       "deviceId": "device_test_1794918212845",
       "name": "Zaid Friend",
       "phone": "9999888877",
-      "status": "approved",
+      "status": "blocked",
       "requestedAt": "2026-11-17T12:23:33.815Z",
       "approvedAt": "2026-11-17T12:23:35.001Z",
-      "blockedAt": null
+      "blockedAt": "2026-11-17T12:23:38.661Z"
     }
   ]
 }
