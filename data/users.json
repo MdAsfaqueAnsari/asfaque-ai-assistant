@@ -1,3 +1,14 @@
 {
-  "users": []
+  "users": [
+    {
+      "id": "usr_1794918213815_c2js",
+      "deviceId": "device_test_1794918212845",
+      "name": "Zaid Friend",
+      "phone": "9999888877",
+      "status": "pending",
+      "requestedAt": "2026-11-17T12:23:33.815Z",
+      "approvedAt": null,
+      "blockedAt": null
+    }
+  ]
 }
