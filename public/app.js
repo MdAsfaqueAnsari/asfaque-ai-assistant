@@ -1,6 +1,6 @@
 // ========================================================
-// My First AI Project - Client Application
-// Inspired by Rohit Negi's "Create Your FIRST AI Project"
+// Asfaque's AI Assistant - Client Application
+// Powered by Google Gemini API
 // ========================================================
 
 const STORAGE_KEYS = {
