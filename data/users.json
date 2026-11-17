@@ -1,3 +1,14 @@
 {
-  "users": []
+  "users": [
+    {
+      "id": "usr_1794920545325_2uvh",
+      "deviceId": "dev_1794918717827_0zqnnoc",
+      "name": "Uueye",
+      "phone": "(37376373",
+      "status": "pending",
+      "requestedAt": "2026-11-17T13:02:25.325Z",
+      "approvedAt": null,
+      "blockedAt": null
+    }
+  ]
 }
