@@ -1,89 +1,59 @@
-# 🚀 My First AI Project (ChatGPT & Gemini Clone)
-*Inspired by Rohit Negi's "Create Your FIRST AI Project" YouTube Guide*
+# 🚀 Asfaque's AI Assistant
+*Powered by Google Gemini 3.5 API, Node.js, Express & Modern Vanilla Web Stack*
 
-A full-stack, responsive, resume-ready AI Chatbot application powered by **Google Gemini API** (`gemini-1.5-flash`, `gemini-2.0-flash`, `gemini-1.5-pro`), built with **Node.js, Express, JavaScript, HTML5, and CSS3**.
+Live GitHub Repository: **[https://github.com/asfaque19/asfaque-ai-assistant](https://github.com/asfaque19/asfaque-ai-assistant)**
 
 ---
 
 ## ✨ Features
-- 💬 **ChatGPT-like Modern UI:** Clean Dark & Light theme with glowing AI accents.
-- ⚡ **Multi-Model Support:** Switch seamlessly between Gemini 1.5 Flash, 2.0 Flash, and 1.5 Pro.
-- 📝 **Markdown & Code Highlighting:** Formats AI answers with syntax highlighting and a 1-click **Copy Code** button.
+- 💬 **ChatGPT-style Modern UI:** Responsive Dark & Light themes with glowing accents.
+- 📎 **Document & PDF Analysis:** Automatically reads local PDFs/documents or uploads via 📎 paperclip button.
+- ⚡ **Multi-Model Support:** Google Gemini 3.5 Flash Lite (Ultra Fast), Gemini 3.5 Flash, Gemini 3.8 Flash.
+- 📝 **Markdown & Code Highlighting:** Formats responses cleanly with code syntax highlighting and 1-click **Copy** button.
 - 💾 **Local Chat History:** Remembers previous conversations using `localStorage`.
 - ⚙️ **In-App API Key Manager:** Set your free Gemini API key directly from the browser UI or in `.env`.
-- 🎯 **One-Click Local Launcher:** Double-click `start-app.bat` on Windows to install dependencies and open browser automatically.
-- 🌐 **1-Click Vercel Deployment:** Pre-configured `vercel.json` for free production deployment.
+- 🌐 **Cross-Device Ready:** Works on your local PC, across your local Wi-Fi network (mobile/tablet), or deployed online.
+- ☁️ **1-Click Vercel Deployment:** Pre-configured `vercel.json` for live cloud deployment with URL `https://asfaque-ai-assistant.vercel.app`.
 
 ---
 
-## 🏃 Quick Start (Local Setup)
+## 🏃 Quick Start (How to Run)
 
-### Option 1: Double-Click Launcher (Easiest)
-Simply double-click the **`start-app.bat`** file inside this folder.  
-It will automatically install packages and open your browser at `http://localhost:3000`.
-
-### Option 2: Terminal / Command Prompt
+### 1. On this computer (Localhost):
+Double-click **`start-app.bat`** on your Desktop, or run:
 ```bash
-# 1. Navigate to the project directory
-cd "C:\Users\DELL\OneDrive\Desktop\My-First-AI-Project"
-
-# 2. Install dependencies
 npm install
-
-# 3. Start the application
 npm start
 ```
-Now open your browser and visit: **`http://localhost:3000`**
+Then visit: **`http://localhost:3000/asfaque-ai-assistant`**
 
----
+### 2. On other devices in your home/office (Mobile / Laptop on same Wi-Fi):
+Open browser on your phone/tablet connected to the same Wi-Fi and visit:
+👉 **`http://192.168.1.104:3000/asfaque-ai-assistant`**
 
-## 🔑 How to get your FREE Gemini API Key (30 Seconds)
-1. Go to **[Google AI Studio](https://aistudio.google.com/app/apikey)**.
-2. Sign in with your Google account.
-3. Click **"Create API Key"** (or **"Get API key"**).
-4. Copy the generated key (starts with `AIzaSy...`).
-5. In your web app, click **"API Key & Settings"** in the sidebar, paste your key, and click **Save & Connect**!  
-*(Alternatively, paste it into the `.env` file as `GEMINI_API_KEY=your_key_here`)*.
-
----
-
-## ☁️ Step-by-Step Vercel Deployment (Rohit Negi Method)
-
-Deploy your chatbot online for free so you can share it with friends and put it on your resume!
-
-### Step 1: Push Code to GitHub
+### 3. On ANY other computer anywhere in the world:
+Anyone can clone this GitHub repo:
 ```bash
-git init
-git add .
-git commit -m "My First AI Project - Rohit Negi Guide"
-git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/my-first-ai-project.git
-git push -u origin main
+git clone https://github.com/asfaque19/asfaque-ai-assistant.git
+cd asfaque-ai-assistant
+npm install
+npm start
 ```
-
-### Step 2: Deploy on Vercel
-1. Go to **[vercel.com](https://vercel.com)** and sign in with GitHub.
-2. Click **"Add New..."** ➔ **"Project"**.
-3. Select your `my-first-ai-project` repository.
-4. In the **Environment Variables** section:
-   - Name: `GEMINI_API_KEY`
-   - Value: *(Your Gemini API key)*
-5. Click **"Deploy"**.
-6. Within 1 minute, Vercel will give you a live production URL (e.g., `https://my-first-ai-project.vercel.app`)!
 
 ---
 
-## 📁 Project Structure
-```
-My-First-AI-Project/
-├── public/
-│   ├── index.html       # Full responsive ChatGPT / Gemini web UI
-│   ├── style.css        # Modern Dark & Light theme stylesheet
-│   └── app.js           # Client chat engine, history & marked parser
-├── server.js            # Express API server with Gemini endpoint
-├── package.json         # Node.js dependencies & scripts
-├── vercel.json          # Vercel deployment configuration
-├── start-app.bat        # One-click Windows desktop launcher
-├── .env.example         # Environment template
-└── README.md            # Documentation guide
-```
+## ☁️ 1-Click Vercel Deployment (Permanent Online URL)
+Deploy online for 24/7 access with URL **`https://asfaque-ai-assistant.vercel.app`**:
+
+1. Go to **[Vercel](https://vercel.com/new)** and click **Continue with GitHub**.
+2. Under "Import Git Repository", find **`asfaque19/asfaque-ai-assistant`** and click **Import**.
+3. Under **Environment Variables**, add:
+   - Key: `GEMINI_API_KEY`
+   - Value: `YOUR_GEMINI_KEY`
+4. Click **Deploy**!
+5. Your assistant is now live on the internet at: **`https://asfaque-ai-assistant.vercel.app`**!
+
+---
+
+## 📄 License
+MIT © Asfaque

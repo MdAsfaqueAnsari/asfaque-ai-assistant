@@ -16,8 +16,16 @@
       "dest": "server.js"
     },
     {
-      "src": "/(.*)",
+      "src": "/asfaque-ai-assistant",
+      "dest": "public/index.html"
+    },
+    {
+      "src": "/(style.css|app.js|.*\\.png|.*\\.ico|.*\\.svg)",
       "dest": "public/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "server.js"
     }
   ]
 }
