@@ -1,3 +1,14 @@
 {
-  "users": []
+  "users": [
+    {
+      "id": "usr_1794920673548_bmyc",
+      "deviceId": "dev_1794919268099_z8vz9nb",
+      "name": "Vishal",
+      "phone": "1111",
+      "status": "pending",
+      "requestedAt": "2026-11-17T13:04:33.548Z",
+      "approvedAt": null,
+      "blockedAt": null
+    }
+  ]
 }
