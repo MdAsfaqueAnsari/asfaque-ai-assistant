@@ -35,9 +35,9 @@
       "deviceId": "dev_1794920752160_k3ajd6k",
       "name": "Vishal",
       "phone": "1111",
-      "status": "pending",
+      "status": "approved",
       "requestedAt": "2026-11-17T13:06:09.080Z",
-      "approvedAt": null,
+      "approvedAt": "2026-11-17T13:06:21.511Z",
       "blockedAt": null
     }
   ]
