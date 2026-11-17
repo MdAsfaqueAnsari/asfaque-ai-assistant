@@ -1,3 +1,14 @@
 {
-  "users": []
+  "users": [
+    {
+      "id": "usr_1794920427386_svuu",
+      "deviceId": "test-device-123",
+      "name": "TestUser",
+      "phone": "9999999999",
+      "status": "pending",
+      "requestedAt": "2026-11-17T13:00:27.386Z",
+      "approvedAt": null,
+      "blockedAt": null
+    }
+  ]
 }
