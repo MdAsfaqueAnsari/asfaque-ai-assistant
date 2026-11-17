@@ -5,10 +5,10 @@
       "deviceId": "dev_1794918717827_0zqnnoc",
       "name": "Uueye",
       "phone": "(37376373",
-      "status": "approved",
+      "status": "blocked",
       "requestedAt": "2026-11-17T13:02:26.451Z",
       "approvedAt": "2026-11-17T13:03:16.669Z",
-      "blockedAt": null
+      "blockedAt": "2026-11-17T13:03:37.180Z"
     }
   ]
 }
