@@ -29,6 +29,16 @@
       "requestedAt": "2026-11-17T13:07:37.514Z",
       "approvedAt": "2026-11-17T13:07:48.796Z",
       "blockedAt": null
+    },
+    {
+      "id": "usr_1794921519167_zf6i",
+      "deviceId": "dev_1794921509100_fmp7p28",
+      "name": "Tegsg",
+      "phone": "(37376373",
+      "status": "pending",
+      "requestedAt": "2026-11-17T13:18:39.167Z",
+      "approvedAt": null,
+      "blockedAt": null
     }
   ]
 }
