@@ -5,10 +5,10 @@
       "deviceId": "device_e2e_test_1794920639883",
       "name": "Asfaque Friend",
       "phone": "9876543210",
-      "status": "approved",
+      "status": "blocked",
       "requestedAt": "2026-11-17T13:04:00.936Z",
       "approvedAt": "2026-11-17T13:04:02.793Z",
-      "blockedAt": null
+      "blockedAt": "2026-11-17T13:04:04.508Z"
     }
   ]
 }
