@@ -39,6 +39,16 @@
       "requestedAt": "2026-11-17T13:18:39.167Z",
       "approvedAt": "2026-11-17T13:18:43.397Z",
       "blockedAt": null
+    },
+    {
+      "id": "usr_1794921611482_5wmz",
+      "deviceId": "dev_1794918685971_ujxw9bd",
+      "name": "Hamzah",
+      "phone": "9999888877",
+      "status": "pending",
+      "requestedAt": "2026-11-17T13:20:11.482Z",
+      "approvedAt": null,
+      "blockedAt": null
     }
   ]
 }
