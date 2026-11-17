@@ -1,14 +1,3 @@
 {
-  "users": [
-    {
-      "id": "usr_1794920545325_2uvh",
-      "deviceId": "dev_1794918717827_0zqnnoc",
-      "name": "Uueye",
-      "phone": "(37376373",
-      "status": "approved",
-      "requestedAt": "2026-11-17T13:02:26.451Z",
-      "approvedAt": "2026-11-17T13:03:44.377Z",
-      "blockedAt": null
-    }
-  ]
+  "users": []
 }
