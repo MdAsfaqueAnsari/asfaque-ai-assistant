@@ -5,10 +5,10 @@
       "deviceId": "test_dev_1",
       "name": "Rahul Test",
       "phone": "9876543210",
-      "status": "approved",
+      "status": "blocked",
       "requestedAt": "2026-11-17T12:18:30.041Z",
       "approvedAt": "2026-11-17T12:18:31.104Z",
-      "blockedAt": null
+      "blockedAt": "2026-11-17T12:18:32.074Z"
     }
   ]
 }
