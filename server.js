@@ -107,8 +107,8 @@ app.post('/api/admin/action', async (req, res) => {
     if (!accessControl.verifyAdmin(token)) {
       return res.status(401).json({ error: 'Unauthorized: Invalid Admin Token.' });
     }
-    const { userId, action } = req.body;
-    const result = await accessControl.performAdminAction(userId, action);
+    const { userId, action, fallbackUser } = req.body;
+    const result = await accessControl.performAdminAction(userId, action, fallbackUser);
     res.json(result);
   } catch (err) {
     res.status(400).json({ error: err.message });

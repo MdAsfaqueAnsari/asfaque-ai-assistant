@@ -113,7 +113,6 @@
     .auth-card p { color: var(--text-secondary); font-size: 13px; margin-bottom: 24px; }
     .form-group { text-align: left; margin-bottom: 16px; }
     .form-group label { display: block; font-size: 13px; margin-bottom: 6px; color: var(--text-secondary); font-weight: 500; }
-    .input-wrapper { display: flex; gap: 8px; }
     input[type="password"], input[type="text"] {
       width: 100%;
       background-color: var(--bg-primary);
@@ -316,6 +315,7 @@
 
   <script>
     const ADMIN_TOKEN_KEY = 'asfaque_admin_token';
+    const ADMIN_USERS_STORAGE_KEY = 'asfaque_admin_saved_users';
     let adminToken = localStorage.getItem(ADMIN_TOKEN_KEY) || '';
 
     const elements = {
@@ -354,13 +354,31 @@
       elements.dashboardView.style.display = 'none';
       elements.headerNav.style.display = 'none';
       elements.adminPass.focus();
+      if (window.adminPollTimer) {
+        clearInterval(window.adminPollTimer);
+        window.adminPollTimer = null;
+      }
     }
 
     function showDashboard() {
       elements.authView.style.display = 'none';
       elements.dashboardView.style.display = 'block';
       elements.headerNav.style.display = 'flex';
+
+      // Instantly load and render cached users from localStorage (ZERO empty table flicker on refresh!)
+      const cached = localStorage.getItem(ADMIN_USERS_STORAGE_KEY);
+      if (cached) {
+        try {
+          renderUsers(JSON.parse(cached));
+        } catch (_) {}
+      }
+
       fetchUsers();
+
+      // Realtime auto-polling every 3.5 seconds
+      if (!window.adminPollTimer) {
+        window.adminPollTimer = setInterval(fetchUsers, 3500);
+      }
     }
 
     // Login Submission
@@ -393,7 +411,10 @@
       showLogin();
     });
 
-    elements.refreshBtn.addEventListener('click', fetchUsers);
+    elements.refreshBtn.addEventListener('click', () => {
+      showToast('Refreshing users...');
+      fetchUsers();
+    });
 
     async function verifySession() {
       try {
@@ -406,7 +427,8 @@
           showLogin();
         }
       } catch (_) {
-        showLogin();
+        // If network issue, allow cached dashboard view
+        showDashboard();
       }
     }
 
@@ -418,10 +440,12 @@
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Failed to fetch users.');
 
-        renderUsers(data.users || []);
+        if (Array.isArray(data.users)) {
+          localStorage.setItem(ADMIN_USERS_STORAGE_KEY, JSON.stringify(data.users));
+          renderUsers(data.users);
+        }
       } catch (err) {
-        console.error('Fetch users error:', err);
-        showToast('Error loading users: ' + err.message);
+        console.warn('Fetch users warning:', err.message);
       }
     }
 
@@ -488,6 +512,24 @@
         return;
       }
 
+      // Optimistic update in UI & localStorage immediately
+      let fallbackUser = null;
+      const cached = localStorage.getItem(ADMIN_USERS_STORAGE_KEY);
+      if (cached) {
+        try {
+          let users = JSON.parse(cached);
+          const u = users.find(x => x.id === userId);
+          if (u) {
+            fallbackUser = { ...u };
+            if (action === 'approve' || action === 'unblock') u.status = 'approved';
+            else if (action === 'block') u.status = 'blocked';
+            else if (action === 'delete') users = users.filter(x => x.id !== userId);
+            localStorage.setItem(ADMIN_USERS_STORAGE_KEY, JSON.stringify(users));
+            renderUsers(users);
+          }
+        } catch (_) {}
+      }
+
       try {
         const res = await fetch('/api/admin/action', {
           method: 'POST',
@@ -495,15 +537,19 @@
             'Authorization': 'Bearer ' + adminToken,
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ userId, action })
+          body: JSON.stringify({ userId, action, fallbackUser })
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Action failed.');
 
         showToast(`User successfully updated: ${action.toUpperCase()}`);
-        renderUsers(data.users || []);
+        if (Array.isArray(data.users)) {
+          localStorage.setItem(ADMIN_USERS_STORAGE_KEY, JSON.stringify(data.users));
+          renderUsers(data.users);
+        }
       } catch (err) {
         alert(err.message);
+        fetchUsers();
       }
     };
 

@@ -127,8 +127,72 @@ function init() {
 }
 
 // ========================================================
-// Access Control Verification
+// Access Control Verification & Real-time Auto-polling
 // ========================================================
+let accessPollTimer = null;
+
+function stopAccessPolling() {
+  if (accessPollTimer) {
+    clearInterval(accessPollTimer);
+    accessPollTimer = null;
+  }
+}
+
+function startAccessPolling() {
+  if (accessPollTimer) return;
+  accessPollTimer = setInterval(async () => {
+    try {
+      const res = await fetch(`/api/access/status?deviceId=${encodeURIComponent(state.deviceId)}&t=${Date.now()}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.status === 'approved') {
+        stopAccessPolling();
+        state.accessStatus = 'approved';
+        if (elements.accessGateModal) elements.accessGateModal.style.display = 'none';
+        elements.userInput.disabled = false;
+        elements.userInput.focus();
+        showApprovalNotification();
+      } else if (data.status === 'blocked') {
+        stopAccessPolling();
+        state.accessStatus = 'blocked';
+        checkAccessStatus();
+      }
+    } catch (_) {}
+  }, 2000);
+}
+
+function showApprovalNotification() {
+  const existing = document.getElementById('approvalNoticeBanner');
+  if (existing) return;
+  const banner = document.createElement('div');
+  banner.id = 'approvalNoticeBanner';
+  banner.style.cssText = `
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: fadeInDown 0.3s ease;
+  `;
+  banner.innerHTML = `<span>🎉</span> Access Approved by Asfaque! You can now chat.`;
+  document.body.appendChild(banner);
+  setTimeout(() => {
+    banner.style.opacity = '0';
+    banner.style.transition = 'opacity 0.5s ease';
+    setTimeout(() => banner.remove(), 500);
+  }, 4000);
+}
+
 async function checkAccessStatus() {
   // If user has admin token saved, check admin session
   state.adminToken = localStorage.getItem(STORAGE_KEYS.ADMIN_TOKEN) || '';
@@ -139,43 +203,53 @@ async function checkAccessStatus() {
       });
       if (adminRes.ok) {
         state.accessStatus = 'approved';
+        stopAccessPolling();
         if (elements.accessGateModal) elements.accessGateModal.style.display = 'none';
+        elements.userInput.disabled = false;
         return;
       }
     } catch (_) {}
   }
 
   try {
-    const res = await fetch(`/api/access/status?deviceId=${encodeURIComponent(state.deviceId)}`);
+    const res = await fetch(`/api/access/status?deviceId=${encodeURIComponent(state.deviceId)}&t=${Date.now()}`);
     const data = await res.json();
     state.accessStatus = data.status;
 
     if (!elements.accessGateModal) return;
 
     if (data.status === 'approved') {
+      stopAccessPolling();
       elements.accessGateModal.style.display = 'none';
+      elements.userInput.disabled = false;
     } else if (data.status === 'pending') {
       elements.accessGateModal.style.display = 'flex';
       elements.accessIcon.textContent = '⏳';
       elements.accessTitle.textContent = 'Request Pending Approval';
-      elements.accessDesc.innerHTML = `Hi <strong>${escapeHtml(data.user?.name || 'Friend')}</strong>, your request has been sent to Asfaque.<br><br>Please wait until Asfaque approves your device from his Admin Panel.`;
+      elements.accessDesc.innerHTML = `Hi <strong>${escapeHtml(data.user?.name || 'Friend')}</strong>, your request has been sent to Asfaque.<br><br>Please wait until Asfaque approves your device from his Admin Panel. It will unlock automatically!`;
       elements.accessRequestForm.style.display = 'none';
       elements.pendingActionArea.style.display = 'block';
+      elements.userInput.disabled = true;
+      startAccessPolling();
     } else if (data.status === 'blocked') {
+      stopAccessPolling();
       elements.accessGateModal.style.display = 'flex';
       elements.accessIcon.textContent = '⛔';
       elements.accessTitle.textContent = 'Access Revoked';
       elements.accessDesc.innerHTML = `Hi <strong>${escapeHtml(data.user?.name || '')}</strong>, your access has been disabled by Asfaque.<br><br>Please contact Asfaque directly to regain access.`;
       elements.accessRequestForm.style.display = 'none';
       elements.pendingActionArea.style.display = 'none';
+      elements.userInput.disabled = true;
     } else {
       // Unregistered
+      stopAccessPolling();
       elements.accessGateModal.style.display = 'flex';
       elements.accessIcon.textContent = '🔒';
       elements.accessTitle.textContent = 'Access Required';
       elements.accessDesc.textContent = 'Welcome to Asfaque\'s AI Assistant! Access is strictly controlled. Please enter your name to request approval from Asfaque:';
       elements.accessRequestForm.style.display = 'block';
       elements.pendingActionArea.style.display = 'none';
+      elements.userInput.disabled = true;
     }
   } catch (err) {
     console.warn('Access check error:', err);
