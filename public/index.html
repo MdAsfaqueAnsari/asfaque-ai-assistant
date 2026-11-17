@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Asfaque's AI Assistant | Powered by Google Gemini</title>
+  <title>Asfaque's AI Assistant</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✨</text></svg>">
   <!-- Fonts & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -44,12 +44,13 @@
       </div>
 
       <div class="sidebar-footer">
-        <button class="sidebar-footer-btn" id="openSettingsBtn">
+        <!-- Settings button (Admin only) -->
+        <button class="sidebar-footer-btn" id="openSettingsBtn" style="display: none;">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="3"></circle>
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
           </svg>
-          <span>API Key & Settings</span>
+          <span>AI Settings</span>
         </button>
 
         <button class="sidebar-footer-btn" id="themeToggleBtn">
@@ -82,20 +83,26 @@
             </svg>
           </button>
           
-          <div class="model-select-wrapper">
+          <!-- Model Selection (Admin only) -->
+          <div class="model-select-wrapper" id="modelSelectWrapper" style="display: none;">
             <select id="modelSelect" class="model-select">
-              <option value="gemini-3.5-flash-lite" selected>Gemini 3.5 Flash Lite (Ultra Fast)</option>
-              <option value="gemini-3.5-flash">Gemini 3.5 Flash (Balanced)</option>
-              <option value="gemini-3.8-flash">Gemini 3.8 Flash (Latest)</option>
-              <option value="gemini-flash-latest">Gemini Flash Latest</option>
+              <option value="gemini-3.5-flash-lite" selected>AI Ultra Fast Engine (v3.5 Lite)</option>
+              <option value="gemini-3.5-flash">AI Pro Engine (v3.5 Balanced)</option>
+              <option value="gemini-3.8-flash">AI Advanced Engine (v3.8)</option>
+              <option value="gemini-flash-latest">AI High Performance Engine</option>
             </select>
           </div>
         </div>
 
         <div class="nav-right">
-          <button class="api-status-badge" id="apiStatusBadge">
+          <!-- Admin shortcut link (Only if admin authenticated) -->
+          <a href="/admin" class="admin-link-btn" id="adminLinkBtn" title="Open Asfaque's Admin Panel" style="display: none; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(79, 70, 229, 0.15); border: 1px solid rgba(99, 102, 241, 0.4); border-radius: 8px; color: #a5b4fc; text-decoration: none; font-size: 13px; font-weight: 600;">
+            <span>🛡️ Admin Panel</span>
+          </a>
+          <!-- Status Badge (Admin only) -->
+          <button class="api-status-badge" id="apiStatusBadge" style="display: none;">
             <span class="status-dot" id="statusDot"></span>
-            <span id="statusText">Checking Key...</span>
+            <span id="statusText">System Active</span>
           </button>
         </div>
       </header>
@@ -106,7 +113,7 @@
         <div class="hero-screen" id="heroScreen">
           <div class="hero-sparkle">✨</div>
           <h1 class="hero-title">Asfaque's AI Assistant</h1>
-          <p class="hero-subtitle">Your personal intelligent AI assistant, powered by Google Gemini</p>
+          <p class="hero-subtitle">Your personal intelligent AI assistant, built for high performance and daily productivity.</p>
 
           <div class="suggestion-grid">
             <div class="suggestion-card" data-prompt="Write a clean Python script to scrape live weather data from an API.">
@@ -117,7 +124,7 @@
               </div>
             </div>
 
-            <div class="suggestion-card" data-prompt="Explain how Large Language Models and Tokenization work in simple, beginner-friendly terms.">
+            <div class="suggestion-card" data-prompt="Explain LLMs, Tokenization, and Attention mechanisms simply for beginners.">
               <div class="card-icon">🚀</div>
               <div class="card-text">
                 <strong>Explain AI concepts</strong>
@@ -125,7 +132,7 @@
               </div>
             </div>
 
-            <div class="suggestion-card" data-prompt="Draft a professional leave application email for a 3-day family vacation.">
+            <div class="suggestion-card" data-prompt="Write a concise and professional email requesting sick leave to my manager.">
               <div class="card-icon">✍️</div>
               <div class="card-text">
                 <strong>Draft an email</strong>
@@ -133,7 +140,7 @@
               </div>
             </div>
 
-            <div class="suggestion-card" data-prompt="Give me 5 resume-worthy AI project ideas that I can build using APIs and deploy.">
+            <div class="suggestion-card" data-prompt="Give me 5 unique, resume-worthy AI project ideas with modern tech stacks.">
               <div class="card-icon">🎯</div>
               <div class="card-text">
                 <strong>Project ideas</strong>
@@ -143,37 +150,39 @@
           </div>
         </div>
 
-        <!-- Messages Container -->
+        <!-- Chat Messages Container -->
         <div class="messages-container" id="messagesContainer">
-          <!-- Chat messages rendered dynamically -->
+          <!-- Messages will be injected here dynamically -->
         </div>
 
-        <!-- Typing Indicator -->
+        <!-- Bot Typing Indicator -->
         <div class="typing-indicator" id="typingIndicator" style="display: none;">
-          <div class="avatar ai-avatar">✨</div>
-          <div class="typing-bubbles">
-            <span></span>
-            <span></span>
-            <span></span>
+          <div class="avatar assistant-avatar">✨</div>
+          <div class="typing-bubble">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
           </div>
         </div>
       </div>
 
-      <!-- Input Footer Area -->
-      <footer class="chat-input-area">
-        <!-- File Attachment Preview Chip -->
+      <!-- Chat Input Area -->
+      <footer class="input-area">
+        <!-- File Attachment Chip Preview -->
         <div class="file-attachment-preview" id="fileAttachmentPreview" style="display: none;">
           <div class="file-chip">
             <span class="file-chip-icon" id="fileChipIcon">📄</span>
-            <span class="file-chip-name" id="fileChipName">document.pdf</span>
-            <span class="file-chip-size" id="fileChipSize">(38 KB)</span>
+            <div class="file-chip-info">
+              <div class="file-chip-name" id="fileChipName">document.pdf</div>
+              <div class="file-chip-size" id="fileChipSize">250 KB</div>
+            </div>
             <button type="button" class="file-chip-remove" id="removeFileBtn" title="Remove file">✕</button>
           </div>
         </div>
 
         <div class="input-box-wrapper">
           <input type="file" id="fileInput" accept=".pdf,image/*,.txt,.csv,.json,.md" style="display: none;">
-          <button type="button" class="attach-btn" id="attachBtn" title="Upload PDF or image">
+          <button type="button" class="attach-btn" id="attachBtn" title="Upload document or image">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
             </svg>
@@ -181,7 +190,7 @@
 
           <textarea 
             id="userInput" 
-            placeholder="Ask anything or paste file path (e.g. C:\...\ADALIA.pdf)..." 
+            placeholder="Ask anything, analyze documents, write code, or explore ideas..." 
             rows="1"
             autocomplete="off"
           ></textarea>
@@ -195,17 +204,17 @@
         </div>
 
         <div class="input-footnote">
-          My First AI Project • Powered by Google Gemini API • PDF & File Support Enabled
+          Asfaque's AI Assistant • Private, Secure & Intelligent • File & Document Analysis Enabled
         </div>
       </footer>
     </main>
   </div>
 
-  <!-- API Key / Settings Modal -->
+  <!-- API Key / Settings Modal (Admin Only) -->
   <div class="modal-overlay" id="settingsModal" style="display: none;">
     <div class="modal-card">
       <div class="modal-header">
-        <h3>⚙️ Gemini API Key Settings</h3>
+        <h3>⚙️ AI Engine Key Settings</h3>
         <button class="icon-btn" id="closeSettingsModal">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18 6L6 18M6 6l12 12"/>
@@ -215,17 +224,13 @@
 
       <div class="modal-body">
         <p class="modal-info">
-          Google Gemini API is <strong>100% free</strong> for personal projects. Get your key in 30 seconds from Google AI Studio:
+          Configure your personal AI Engine API key for custom rate limits and usage:
         </p>
 
-        <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" class="aistudio-link">
-          <span>Get Free API Key on Google AI Studio ↗</span>
-        </a>
-
         <div class="form-group">
-          <label for="apiKeyInput">Enter your Gemini API Key:</label>
+          <label for="apiKeyInput">Enter your AI API Key:</label>
           <div class="key-input-wrapper">
-            <input type="password" id="apiKeyInput" placeholder="AIzaSy...">
+            <input type="password" id="apiKeyInput" placeholder="Enter key...">
             <button type="button" id="toggleKeyVisibility" class="visibility-btn">👁️</button>
           </div>
           <small class="hint-text">Your key is stored safely in your browser's localStorage or in .env on the server.</small>
@@ -250,7 +255,7 @@
       <form id="accessRequestForm">
         <div class="form-group" style="text-align: left; margin-bottom: 14px;">
           <label for="requesterName" style="display: block; font-size: 13px; margin-bottom: 6px; color: var(--text-secondary);">Your Full Name:</label>
-          <input type="text" id="requesterName" placeholder="e.g. Rahul Sharma" required style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); outline: none;">
+          <input type="text" id="requesterName" placeholder="e.g. Hamzah" required style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); outline: none;">
         </div>
 
         <div class="form-group" style="text-align: left; margin-bottom: 20px;">

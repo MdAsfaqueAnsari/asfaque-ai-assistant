@@ -77,7 +77,9 @@ const elements = {
   apiStatusBadge: document.getElementById('apiStatusBadge'),
   statusDot: document.getElementById('statusDot'),
   statusText: document.getElementById('statusText'),
+  modelSelectWrapper: document.getElementById('modelSelectWrapper'),
   modelSelect: document.getElementById('modelSelect'),
+  adminLinkBtn: document.getElementById('adminLinkBtn'),
   chatViewport: document.getElementById('chatViewport'),
   heroScreen: document.getElementById('heroScreen'),
   messagesContainer: document.getElementById('messagesContainer'),
@@ -104,14 +106,40 @@ const elements = {
   checkStatusBtn: document.getElementById('checkStatusBtn')
 };
 
+function applyAdminUI(isAdmin) {
+  state.isAdmin = !!isAdmin;
+  if (elements.modelSelectWrapper) elements.modelSelectWrapper.style.display = isAdmin ? 'block' : 'none';
+  if (elements.apiStatusBadge) elements.apiStatusBadge.style.display = isAdmin ? 'inline-flex' : 'none';
+  if (elements.openSettingsBtn) elements.openSettingsBtn.style.display = isAdmin ? 'flex' : 'none';
+  if (elements.adminLinkBtn) elements.adminLinkBtn.style.display = isAdmin ? 'inline-flex' : 'none';
+}
+
+async function checkAdminStatus() {
+  const token = localStorage.getItem(STORAGE_KEYS.ADMIN_TOKEN) || '';
+  if (token) {
+    try {
+      const res = await fetch('/api/admin/users', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (res.ok) {
+        applyAdminUI(true);
+        return;
+      }
+    } catch (_) {}
+  }
+  applyAdminUI(false);
+}
+
 // ========================================================
 // Initialization
 // ========================================================
 function init() {
   applyTheme(state.theme);
+  applyAdminUI(false); // Default: hidden for regular users
   elements.modelSelect.value = state.model;
   elements.apiKeyInput.value = state.apiKey;
 
+  checkAdminStatus();
   checkServerHealth();
   checkAccessStatus();
   renderHistory();
@@ -203,6 +231,7 @@ async function checkAccessStatus() {
       });
       if (adminRes.ok) {
         state.accessStatus = 'approved';
+        applyAdminUI(true);
         stopAccessPolling();
         if (elements.accessGateModal) elements.accessGateModal.style.display = 'none';
         elements.userInput.disabled = false;
@@ -210,6 +239,7 @@ async function checkAccessStatus() {
       }
     } catch (_) {}
   }
+  applyAdminUI(false);
 
   try {
     const res = await fetch(`/api/access/status?deviceId=${encodeURIComponent(state.deviceId)}&t=${Date.now()}`);
@@ -276,10 +306,10 @@ function updateApiStatus() {
   const hasKey = !!state.apiKey || state.hasEnvKey;
   if (hasKey) {
     elements.statusDot.className = 'status-dot connected';
-    elements.statusText.textContent = state.apiKey ? 'Key Connected' : 'Server Key Active';
+    elements.statusText.textContent = state.apiKey ? 'Custom Key Active' : 'System Ready';
   } else {
     elements.statusDot.className = 'status-dot disconnected';
-    elements.statusText.textContent = 'Add Gemini Key';
+    elements.statusText.textContent = 'Configure Key';
   }
 }
 

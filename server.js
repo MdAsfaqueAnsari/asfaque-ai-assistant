@@ -233,7 +233,7 @@ app.post('/api/chat', async (req, res) => {
 
     if (!key) {
       return res.status(401).json({
-        error: 'Gemini API Key missing! Please enter your free Gemini API key in Settings or add it to .env. Get one free at: https://aistudio.google.com/'
+        error: 'AI Engine configuration error: System key not configured. Please contact administrator.'
       });
     }
 
@@ -329,7 +329,7 @@ app.post('/api/chat', async (req, res) => {
       console.warn(`Model ${tryModel} returned ${result.status}, trying fallback...`);
     }
 
-    const errorMsg = lastResult?.data?.error?.message || `Gemini API error (Status: ${lastResult?.status})`;
+    const errorMsg = lastResult?.data?.error?.message || `AI Engine service error (Status: ${lastResult?.status})`;
     return res.status(lastResult?.status || 500).json({ error: errorMsg });
 
   } catch (err) {
