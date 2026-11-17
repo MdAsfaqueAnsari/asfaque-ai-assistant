@@ -1,0 +1,25 @@
+{
+  "name": "my-first-ai-project",
+  "version": "1.0.0",
+  "description": "ChatGPT & Gemini AI Clone - Created following Rohit Negi's First AI Project Guide",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "ai",
+    "chatgpt",
+    "gemini",
+    "chatbot",
+    "google-ai-studio",
+    "rohit-negi"
+  ],
+  "author": "Rohit Negi Tutorial Follower",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  }
+}
