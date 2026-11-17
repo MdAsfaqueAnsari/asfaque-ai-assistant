@@ -15,9 +15,9 @@
       "deviceId": "dev_1794918717827_0zqnnoc",
       "name": "Tegsg",
       "phone": "76567787",
-      "status": "pending",
+      "status": "approved",
       "requestedAt": "2026-11-17T13:04:48.502Z",
-      "approvedAt": null,
+      "approvedAt": "2026-11-17T13:04:56.747Z",
       "blockedAt": null
     }
   ]
