@@ -9,6 +9,16 @@
       "requestedAt": "2026-11-17T13:04:35.119Z",
       "approvedAt": "2026-11-17T13:04:41.760Z",
       "blockedAt": null
+    },
+    {
+      "id": "usr_1794920688502_uofl",
+      "deviceId": "dev_1794918717827_0zqnnoc",
+      "name": "Tegsg",
+      "phone": "76567787",
+      "status": "pending",
+      "requestedAt": "2026-11-17T13:04:48.502Z",
+      "approvedAt": null,
+      "blockedAt": null
     }
   ]
 }
