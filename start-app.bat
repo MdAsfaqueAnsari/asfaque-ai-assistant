@@ -1,9 +1,9 @@
 @echo off
-title My First AI Project - ChatGPT & Gemini
+title Asfaque's AI Assistant - Powered by Google Gemini
 color 0b
 
 echo ========================================================
-echo   Starting My First AI Project (Rohit Negi Guide)
+echo   Starting Asfaque's AI Assistant
 echo ========================================================
 echo.
 
@@ -22,8 +22,8 @@ if not exist "node_modules\" (
 )
 
 echo.
-echo [2/3] Starting Local AI Server on http://localhost:3000 ...
-start "" http://localhost:3000
+echo [2/3] Opening Asfaque's AI Assistant...
+start "" http://localhost:3000/asfaque-ai-assistant
 
 echo.
 echo [3/3] Server is running! Press Ctrl+C to stop.

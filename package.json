@@ -1,7 +1,7 @@
 {
-  "name": "my-first-ai-project",
+  "name": "asfaque-ai-assistant",
   "version": "1.0.0",
-  "description": "ChatGPT & Gemini AI Clone - Created following Rohit Negi's First AI Project Guide",
+  "description": "Asfaque's AI Assistant - Powered by Google Gemini",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -13,9 +13,9 @@
     "gemini",
     "chatbot",
     "google-ai-studio",
-    "rohit-negi"
+    "asfaque-ai-assistant"
   ],
-  "author": "Rohit Negi Tutorial Follower",
+  "author": "Asfaque",
   "license": "MIT",
   "dependencies": {
     "cors": "^2.8.5",
