@@ -35,9 +35,9 @@
       "deviceId": "dev_1794921509100_fmp7p28",
       "name": "Tegsg",
       "phone": "(37376373",
-      "status": "pending",
+      "status": "approved",
       "requestedAt": "2026-11-17T13:18:39.167Z",
-      "approvedAt": null,
+      "approvedAt": "2026-11-17T13:18:43.397Z",
       "blockedAt": null
     }
   ]
