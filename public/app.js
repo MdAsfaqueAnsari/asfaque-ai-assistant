@@ -12,14 +12,21 @@ const STORAGE_KEYS = {
 };
 
 // Application State
+let savedModel = localStorage.getItem(STORAGE_KEYS.MODEL);
+if (!savedModel || savedModel.includes('1.5') || savedModel.includes('2.0') || savedModel.includes('2.5')) {
+  savedModel = 'gemini-3.5-flash-lite';
+  localStorage.setItem(STORAGE_KEYS.MODEL, savedModel);
+}
+
 let state = {
   apiKey: localStorage.getItem(STORAGE_KEYS.API_KEY) || '',
   theme: localStorage.getItem(STORAGE_KEYS.THEME) || 'dark',
-  model: localStorage.getItem(STORAGE_KEYS.MODEL) || 'gemini-1.5-flash',
+  model: savedModel,
   chats: JSON.parse(localStorage.getItem(STORAGE_KEYS.CHATS) || '[]'),
   activeChatId: localStorage.getItem(STORAGE_KEYS.ACTIVE_CHAT_ID) || null,
   isGenerating: false,
-  hasEnvKey: false
+  hasEnvKey: false,
+  attachedFile: null // { name, size, mimeType, data }
 };
 
 // Configure Marked for code highlighting
@@ -63,6 +70,13 @@ const elements = {
   typingIndicator: document.getElementById('typingIndicator'),
   userInput: document.getElementById('userInput'),
   sendBtn: document.getElementById('sendBtn'),
+  attachBtn: document.getElementById('attachBtn'),
+  fileInput: document.getElementById('fileInput'),
+  fileAttachmentPreview: document.getElementById('fileAttachmentPreview'),
+  fileChipIcon: document.getElementById('fileChipIcon'),
+  fileChipName: document.getElementById('fileChipName'),
+  fileChipSize: document.getElementById('fileChipSize'),
+  removeFileBtn: document.getElementById('removeFileBtn'),
   suggestionCards: document.querySelectorAll('.suggestion-card')
 };
 
@@ -129,6 +143,50 @@ function toggleTheme() {
 }
 
 // ========================================================
+// File Handling
+// ========================================================
+function processSelectedFile(file) {
+  if (!file) return;
+
+  if (file.size > 25 * 1024 * 1024) {
+    alert('File size exceeds 25MB limit.');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    const base64Data = reader.result.split(',')[1];
+    state.attachedFile = {
+      name: file.name,
+      size: formatFileSize(file.size),
+      mimeType: file.type || 'application/octet-stream',
+      data: base64Data
+    };
+
+    elements.fileChipName.textContent = file.name;
+    elements.fileChipSize.textContent = `(${formatFileSize(file.size)})`;
+    elements.fileChipIcon.textContent = file.name.toLowerCase().endsWith('.pdf') ? '📄' : 
+                                      file.type.startsWith('image/') ? '🖼️' : '📁';
+    elements.fileAttachmentPreview.style.display = 'flex';
+    updateSendButtonState();
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeAttachedFile() {
+  state.attachedFile = null;
+  if (elements.fileInput) elements.fileInput.value = '';
+  elements.fileAttachmentPreview.style.display = 'none';
+  updateSendButtonState();
+}
+
+function formatFileSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+// ========================================================
 // Chat Management & LocalStorage
 // ========================================================
 function getActiveChat() {
@@ -151,6 +209,7 @@ function createNewChat(shouldFocus = true) {
 
   state.chats.unshift(newChat);
   state.activeChatId = newChat.id;
+  removeAttachedFile();
   saveChats();
   renderCurrentChat();
 
@@ -161,6 +220,7 @@ function createNewChat(shouldFocus = true) {
 
 function loadChat(chatId) {
   state.activeChatId = chatId;
+  removeAttachedFile();
   saveChats();
   renderCurrentChat();
   if (window.innerWidth <= 768) {
@@ -205,7 +265,7 @@ function renderCurrentChat() {
   } else {
     elements.heroScreen.style.display = 'none';
     elements.messagesContainer.innerHTML = '';
-    chat.messages.forEach(msg => appendMessageToDOM(msg.role, msg.content, false));
+    chat.messages.forEach(msg => appendMessageToDOM(msg.role, msg.content, false, msg.fileName));
     scrollToBottom();
   }
 }
@@ -213,7 +273,7 @@ function renderCurrentChat() {
 // ========================================================
 // Message Rendering & UI Helpers
 // ========================================================
-function appendMessageToDOM(role, content, shouldScroll = true) {
+function appendMessageToDOM(role, content, shouldScroll = true, fileName = null) {
   elements.heroScreen.style.display = 'none';
 
   const row = document.createElement('div');
@@ -228,7 +288,15 @@ function appendMessageToDOM(role, content, shouldScroll = true) {
   bubble.className = 'message-bubble';
 
   if (isUser) {
-    bubble.textContent = content;
+    if (fileName) {
+      const fileBadge = document.createElement('div');
+      fileBadge.className = 'file-badge-in-chat';
+      fileBadge.innerHTML = `📎 <strong>${escapeHtml(fileName)}</strong>`;
+      bubble.appendChild(fileBadge);
+    }
+    const textNode = document.createElement('div');
+    textNode.textContent = content;
+    bubble.appendChild(textNode);
   } else {
     // Markdown parsed content for AI responses
     bubble.innerHTML = window.marked ? marked.parse(content) : content;
@@ -253,7 +321,6 @@ function appendMessageToDOM(role, content, shouldScroll = true) {
 function attachCopyCodeButtons(container) {
   const codeBlocks = container.querySelectorAll('pre');
   codeBlocks.forEach(pre => {
-    // Avoid duplicate header if already added
     if (pre.querySelector('.code-header')) return;
 
     const code = pre.querySelector('code');
@@ -311,7 +378,9 @@ function escapeHtml(str) {
 // ========================================================
 async function handleSend() {
   const text = elements.userInput.value.trim();
-  if (!text || state.isGenerating) return;
+  const file = state.attachedFile;
+
+  if ((!text && !file) || state.isGenerating) return;
 
   const chat = getActiveChat();
   if (!chat) return;
@@ -322,17 +391,26 @@ async function handleSend() {
     return;
   }
 
+  const promptText = text || (file ? `Analyze this file: ${file.name}` : '');
+
   // Update title if first message
   if (chat.messages.length === 0) {
-    chat.title = text.length > 32 ? text.substring(0, 32) + '...' : text;
+    chat.title = promptText.length > 32 ? promptText.substring(0, 32) + '...' : promptText;
   }
 
   // Append user message
-  chat.messages.push({ role: 'user', content: text });
-  appendMessageToDOM('user', text);
+  const userMsgObj = { 
+    role: 'user', 
+    content: promptText,
+    fileName: file ? file.name : null
+  };
+  chat.messages.push(userMsgObj);
+  appendMessageToDOM('user', promptText, true, file ? file.name : null);
 
-  // Clear input
+  // Clear input & attached file
   elements.userInput.value = '';
+  const fileToSend = state.attachedFile;
+  removeAttachedFile();
   adjustTextareaHeight();
   updateSendButtonState();
 
@@ -342,16 +420,20 @@ async function handleSend() {
   scrollToBottom();
 
   try {
-    const historyPayload = chat.messages.slice(-10, -1);
+    const historyPayload = chat.messages.slice(-10, -1).map(m => ({
+      role: m.role,
+      content: m.content
+    }));
 
     const response = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        message: text,
+        message: promptText,
         history: historyPayload,
         apiKey: state.apiKey,
-        model: state.model
+        model: state.model,
+        file: fileToSend
       })
     });
 
@@ -456,6 +538,44 @@ function setupEventListeners() {
     localStorage.setItem(STORAGE_KEYS.MODEL, state.model);
   });
 
+  // File Upload Handlers
+  elements.attachBtn.addEventListener('click', () => {
+    elements.fileInput.click();
+  });
+
+  elements.fileInput.addEventListener('change', (e) => {
+    if (e.target.files && e.target.files[0]) {
+      processSelectedFile(e.target.files[0]);
+    }
+  });
+
+  elements.removeFileBtn.addEventListener('click', removeAttachedFile);
+
+  // Drag and Drop files onto input area
+  const dropZone = document.querySelector('.input-box-wrapper');
+  ['dragenter', 'dragover'].forEach(eventName => {
+    dropZone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropZone.style.borderColor = 'var(--accent)';
+    });
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropZone.style.borderColor = '';
+    });
+  });
+
+  dropZone.addEventListener('drop', (e) => {
+    const files = e.dataTransfer?.files;
+    if (files && files[0]) {
+      processSelectedFile(files[0]);
+    }
+  });
+
   // Input & Auto-growing Textarea
   elements.userInput.addEventListener('input', () => {
     adjustTextareaHeight();
@@ -491,7 +611,8 @@ function adjustTextareaHeight() {
 
 function updateSendButtonState() {
   const hasText = !!elements.userInput.value.trim();
-  elements.sendBtn.disabled = !hasText || state.isGenerating;
+  const hasFile = !!state.attachedFile;
+  elements.sendBtn.disabled = (!hasText && !hasFile) || state.isGenerating;
 }
 
 // Start app
