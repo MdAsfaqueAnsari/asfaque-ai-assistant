@@ -93,6 +93,9 @@
         </div>
 
         <div class="nav-right">
+          <a href="/admin" class="admin-link-btn" title="Open Asfaque's Admin Panel">
+            <span>🛡️ Admin</span>
+          </a>
           <button class="api-status-badge" id="apiStatusBadge">
             <span class="status-dot" id="statusDot"></span>
             <span id="statusText">Checking Key...</span>
@@ -235,6 +238,43 @@
       <div class="modal-footer">
         <button class="btn btn-secondary" id="clearKeyBtn">Remove Key</button>
         <button class="btn btn-primary" id="saveKeyBtn">Save & Connect</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Access Request / Lock Modal -->
+  <div class="access-modal-overlay" id="accessGateModal" style="display: none;">
+    <div class="access-card">
+      <div class="access-icon" id="accessIcon">🔒</div>
+      <h2 id="accessTitle">Access Required</h2>
+      <p id="accessDesc">Welcome to Asfaque's AI Assistant! Access is strictly controlled. Please enter your name to request approval from Asfaque.</p>
+
+      <!-- Form for Unregistered -->
+      <form id="accessRequestForm">
+        <div class="form-group" style="text-align: left; margin-bottom: 14px;">
+          <label for="requesterName" style="display: block; font-size: 13px; margin-bottom: 6px; color: var(--text-secondary);">Your Full Name:</label>
+          <input type="text" id="requesterName" placeholder="e.g. Rahul Sharma" required style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); outline: none;">
+        </div>
+
+        <div class="form-group" style="text-align: left; margin-bottom: 20px;">
+          <label for="requesterPhone" style="display: block; font-size: 13px; margin-bottom: 6px; color: var(--text-secondary);">Phone or Note (Optional):</label>
+          <input type="text" id="requesterPhone" placeholder="e.g. 9876543210 or Friend" style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); outline: none;">
+        </div>
+
+        <button type="submit" class="btn-access-submit" id="submitRequestBtn">
+          Request Access from Asfaque
+        </button>
+      </form>
+
+      <!-- Refresh Status Button for Pending / Blocked -->
+      <div id="pendingActionArea" style="display: none; margin-top: 16px;">
+        <button type="button" class="btn-access-submit" id="checkStatusBtn" style="background: var(--bg-secondary); border: 1px solid var(--accent); color: var(--text-primary);">
+          🔄 Check Approval Status
+        </button>
+      </div>
+
+      <div class="access-footer" style="margin-top: 20px; font-size: 12px; color: var(--text-muted);">
+        Are you Asfaque? <a href="/admin" style="color: var(--accent); text-decoration: none; font-weight: 600;">Admin Login 🛡️</a>
       </div>
     </div>
   </div>

@@ -8,8 +8,19 @@ const STORAGE_KEYS = {
   THEME: 'first_ai_project_theme',
   MODEL: 'first_ai_project_model',
   CHATS: 'first_ai_project_saved_chats',
-  ACTIVE_CHAT_ID: 'first_ai_project_active_id'
+  ACTIVE_CHAT_ID: 'first_ai_project_active_id',
+  DEVICE_ID: 'asfaque_ai_device_id',
+  ADMIN_TOKEN: 'asfaque_admin_token'
 };
+
+// Device identification
+let deviceId = localStorage.getItem(STORAGE_KEYS.DEVICE_ID);
+if (!deviceId) {
+  deviceId = 'dev_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
+  localStorage.setItem(STORAGE_KEYS.DEVICE_ID, deviceId);
+}
+
+let adminToken = localStorage.getItem(STORAGE_KEYS.ADMIN_TOKEN) || '';
 
 // Application State
 let savedModel = localStorage.getItem(STORAGE_KEYS.MODEL);
@@ -26,7 +37,10 @@ let state = {
   activeChatId: localStorage.getItem(STORAGE_KEYS.ACTIVE_CHAT_ID) || null,
   isGenerating: false,
   hasEnvKey: false,
-  attachedFile: null // { name, size, mimeType, data }
+  attachedFile: null, // { name, size, mimeType, data }
+  deviceId: deviceId,
+  adminToken: adminToken,
+  accessStatus: 'checking' // 'approved', 'pending', 'blocked', 'unregistered'
 };
 
 // Configure Marked for code highlighting
@@ -77,7 +91,17 @@ const elements = {
   fileChipName: document.getElementById('fileChipName'),
   fileChipSize: document.getElementById('fileChipSize'),
   removeFileBtn: document.getElementById('removeFileBtn'),
-  suggestionCards: document.querySelectorAll('.suggestion-card')
+  suggestionCards: document.querySelectorAll('.suggestion-card'),
+  // Access Control Elements
+  accessGateModal: document.getElementById('accessGateModal'),
+  accessIcon: document.getElementById('accessIcon'),
+  accessTitle: document.getElementById('accessTitle'),
+  accessDesc: document.getElementById('accessDesc'),
+  accessRequestForm: document.getElementById('accessRequestForm'),
+  requesterName: document.getElementById('requesterName'),
+  requesterPhone: document.getElementById('requesterPhone'),
+  pendingActionArea: document.getElementById('pendingActionArea'),
+  checkStatusBtn: document.getElementById('checkStatusBtn')
 };
 
 // ========================================================
@@ -89,6 +113,7 @@ function init() {
   elements.apiKeyInput.value = state.apiKey;
 
   checkServerHealth();
+  checkAccessStatus();
   renderHistory();
 
   // Load existing chat or start fresh
@@ -99,6 +124,62 @@ function init() {
   }
 
   setupEventListeners();
+}
+
+// ========================================================
+// Access Control Verification
+// ========================================================
+async function checkAccessStatus() {
+  // If user has admin token saved, check admin session
+  state.adminToken = localStorage.getItem(STORAGE_KEYS.ADMIN_TOKEN) || '';
+  if (state.adminToken) {
+    try {
+      const adminRes = await fetch('/api/admin/users', {
+        headers: { 'Authorization': 'Bearer ' + state.adminToken }
+      });
+      if (adminRes.ok) {
+        state.accessStatus = 'approved';
+        if (elements.accessGateModal) elements.accessGateModal.style.display = 'none';
+        return;
+      }
+    } catch (_) {}
+  }
+
+  try {
+    const res = await fetch(`/api/access/status?deviceId=${encodeURIComponent(state.deviceId)}`);
+    const data = await res.json();
+    state.accessStatus = data.status;
+
+    if (!elements.accessGateModal) return;
+
+    if (data.status === 'approved') {
+      elements.accessGateModal.style.display = 'none';
+    } else if (data.status === 'pending') {
+      elements.accessGateModal.style.display = 'flex';
+      elements.accessIcon.textContent = '⏳';
+      elements.accessTitle.textContent = 'Request Pending Approval';
+      elements.accessDesc.innerHTML = `Hi <strong>${escapeHtml(data.user?.name || 'Friend')}</strong>, your request has been sent to Asfaque.<br><br>Please wait until Asfaque approves your device from his Admin Panel.`;
+      elements.accessRequestForm.style.display = 'none';
+      elements.pendingActionArea.style.display = 'block';
+    } else if (data.status === 'blocked') {
+      elements.accessGateModal.style.display = 'flex';
+      elements.accessIcon.textContent = '⛔';
+      elements.accessTitle.textContent = 'Access Revoked';
+      elements.accessDesc.innerHTML = `Hi <strong>${escapeHtml(data.user?.name || '')}</strong>, your access has been disabled by Asfaque.<br><br>Please contact Asfaque directly to regain access.`;
+      elements.accessRequestForm.style.display = 'none';
+      elements.pendingActionArea.style.display = 'none';
+    } else {
+      // Unregistered
+      elements.accessGateModal.style.display = 'flex';
+      elements.accessIcon.textContent = '🔒';
+      elements.accessTitle.textContent = 'Access Required';
+      elements.accessDesc.textContent = 'Welcome to Asfaque\'s AI Assistant! Access is strictly controlled. Please enter your name to request approval from Asfaque:';
+      elements.accessRequestForm.style.display = 'block';
+      elements.pendingActionArea.style.display = 'none';
+    }
+  } catch (err) {
+    console.warn('Access check error:', err);
+  }
 }
 
 // ========================================================
@@ -433,13 +514,19 @@ async function handleSend() {
         history: historyPayload,
         apiKey: state.apiKey,
         model: state.model,
-        file: fileToSend
+        file: fileToSend,
+        deviceId: state.deviceId,
+        adminToken: state.adminToken
       })
     });
 
     const data = await response.json();
 
     if (!response.ok) {
+      // If access revoked or pending, refresh access modal
+      if (response.status === 401 || response.status === 403) {
+        checkAccessStatus();
+      }
       throw new Error(data.error || 'Server error occurred.');
     }
 
@@ -450,7 +537,7 @@ async function handleSend() {
 
   } catch (err) {
     console.error('Chat error:', err);
-    const errorMsg = `⚠️ **Error:** ${err.message}\n\n*Make sure your Gemini API key is valid and has not exceeded quota. Get your free key at [Google AI Studio](https://aistudio.google.com/).*`;
+    const errorMsg = `⚠️ **Error:** ${err.message}`;
     chat.messages.push({ role: 'assistant', content: errorMsg });
     appendMessageToDOM('assistant', errorMsg);
     saveChats();
@@ -601,6 +688,37 @@ function setupEventListeners() {
       handleSend();
     });
   });
+
+  // Access Request Form Submission
+  if (elements.accessRequestForm) {
+    elements.accessRequestForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = elements.requesterName.value.trim();
+      const phone = elements.requesterPhone.value.trim();
+      if (!name) return;
+
+      try {
+        const res = await fetch('/api/access/request', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name,
+            phone,
+            deviceId: state.deviceId
+          })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to submit request.');
+        checkAccessStatus();
+      } catch (err) {
+        alert(err.message);
+      }
+    });
+  }
+
+  if (elements.checkStatusBtn) {
+    elements.checkStatusBtn.addEventListener('click', checkAccessStatus);
+  }
 }
 
 function adjustTextareaHeight() {

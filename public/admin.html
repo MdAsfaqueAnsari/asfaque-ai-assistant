@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | Asfaque's AI Assistant</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #121316;
+      --bg-card: #1c1e24;
+      --bg-hover: #262932;
+      --border-color: #2e323d;
+      --text-primary: #f0f3f6;
+      --text-secondary: #9da7b3;
+      --text-muted: #6b7280;
+      --accent: #4f46e5;
+      --accent-hover: #4338ca;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font);
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      background-color: var(--bg-card);
+      border-bottom: 1px solid var(--border-color);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .brand span {
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-links {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+    }
+
+    .btn-primary { background-color: var(--accent); color: white; }
+    .btn-primary:hover { background-color: var(--accent-hover); }
+    .btn-secondary { background-color: var(--bg-hover); color: var(--text-primary); border: 1px solid var(--border-color); }
+    .btn-secondary:hover { background-color: #323642; }
+    .btn-success { background-color: rgba(16, 185, 129, 0.2); color: var(--success); border: 1px solid var(--success); }
+    .btn-success:hover { background-color: var(--success); color: white; }
+    .btn-danger { background-color: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid var(--danger); }
+    .btn-danger:hover { background-color: var(--danger); color: white; }
+    .btn-warning { background-color: rgba(245, 158, 11, 0.2); color: var(--warning); border: 1px solid var(--warning); }
+    .btn-warning:hover { background-color: var(--warning); color: white; }
+
+    /* Auth Screen */
+    .auth-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .auth-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 32px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      text-align: center;
+    }
+
+    .auth-card h2 { margin-bottom: 8px; font-size: 20px; }
+    .auth-card p { color: var(--text-secondary); font-size: 13px; margin-bottom: 24px; }
+    .form-group { text-align: left; margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 13px; margin-bottom: 6px; color: var(--text-secondary); font-weight: 500; }
+    .input-wrapper { display: flex; gap: 8px; }
+    input[type="password"], input[type="text"] {
+      width: 100%;
+      background-color: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      padding: 10px 14px;
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 14px;
+      outline: none;
+    }
+    input:focus { border-color: var(--accent); }
+
+    /* Main Dashboard */
+    .dashboard-container {
+      flex: 1;
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 32px 24px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .stat-title { font-size: 12.5px; color: var(--text-secondary); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-value { font-size: 28px; font-weight: 700; color: var(--text-primary); }
+
+    .users-section {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .section-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .section-title { font-size: 16px; font-weight: 600; }
+
+    .table-responsive { width: 100%; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th {
+      padding: 12px 20px;
+      background-color: rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    td {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 13.5px;
+      vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background-color: var(--bg-hover); }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .badge-approved { background-color: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .badge-pending { background-color: rgba(245, 158, 11, 0.15); color: var(--warning); }
+    .badge-blocked { background-color: rgba(239, 68, 68, 0.15); color: var(--danger); }
+
+    .action-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .empty-state {
+      padding: 48px 24px;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background-color: var(--bg-card);
+      border: 1px solid var(--accent);
+      color: var(--text-primary);
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 13.5px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+      z-index: 1000;
+      animation: slideUp 0.2s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="brand">
+      <span>🛡️ Asfaque's Admin Panel</span>
+    </div>
+    <div class="header-links" id="headerNav" style="display: none;">
+      <a href="/asfaque-ai-assistant" class="btn btn-secondary" target="_blank">Open AI Assistant ↗</a>
+      <button class="btn btn-secondary" id="logoutBtn">Logout</button>
+    </div>
+  </header>
+
+  <!-- Login Card (Shown when not authenticated) -->
+  <div class="auth-container" id="authView">
+    <div class="auth-card">
+      <h2>Asfaque Admin Login</h2>
+      <p>Enter your secret admin password to manage access requests and permissions.</p>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="adminPass">Admin Password:</label>
+          <input type="password" id="adminPass" placeholder="Enter password..." required autofocus>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+          Login to Dashboard
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Dashboard Container (Shown when authenticated) -->
+  <main class="dashboard-container" id="dashboardView" style="display: none;">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-title">Total Users</span>
+        <span class="stat-value" id="totalUsersCount">0</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-title">Approved (Active)</span>
+        <span class="stat-value" id="approvedCount" style="color: var(--success);">0</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-title">Pending Requests</span>
+        <span class="stat-value" id="pendingCount" style="color: var(--warning);">0</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-title">Blocked Users</span>
+        <span class="stat-value" id="blockedCount" style="color: var(--danger);">0</span>
+      </div>
+    </div>
+
+    <section class="users-section">
+      <div class="section-header">
+        <h3 class="section-title">All Access Requests & Users</h3>
+        <button class="btn btn-secondary" id="refreshBtn">🔄 Refresh List</button>
+      </div>
+
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>User Name</th>
+              <th>Phone / Note</th>
+              <th>Status</th>
+              <th>Requested At</th>
+              <th style="text-align: right;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="usersTableBody">
+            <!-- Dynamic Users Injected Here -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const ADMIN_TOKEN_KEY = 'asfaque_admin_token';
+    let adminToken = localStorage.getItem(ADMIN_TOKEN_KEY) || '';
+
+    const elements = {
+      authView: document.getElementById('authView'),
+      dashboardView: document.getElementById('dashboardView'),
+      headerNav: document.getElementById('headerNav'),
+      loginForm: document.getElementById('loginForm'),
+      adminPass: document.getElementById('adminPass'),
+      logoutBtn: document.getElementById('logoutBtn'),
+      refreshBtn: document.getElementById('refreshBtn'),
+      totalUsersCount: document.getElementById('totalUsersCount'),
+      approvedCount: document.getElementById('approvedCount'),
+      pendingCount: document.getElementById('pendingCount'),
+      blockedCount: document.getElementById('blockedCount'),
+      usersTableBody: document.getElementById('usersTableBody')
+    };
+
+    function showToast(msg) {
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = msg;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    async function init() {
+      if (adminToken) {
+        verifySession();
+      } else {
+        showLogin();
+      }
+    }
+
+    function showLogin() {
+      elements.authView.style.display = 'flex';
+      elements.dashboardView.style.display = 'none';
+      elements.headerNav.style.display = 'none';
+      elements.adminPass.focus();
+    }
+
+    function showDashboard() {
+      elements.authView.style.display = 'none';
+      elements.dashboardView.style.display = 'block';
+      elements.headerNav.style.display = 'flex';
+      fetchUsers();
+    }
+
+    // Login Submission
+    elements.loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const password = elements.adminPass.value.trim();
+      if (!password) return;
+
+      try {
+        const res = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Login failed.');
+
+        adminToken = data.token;
+        localStorage.setItem(ADMIN_TOKEN_KEY, adminToken);
+        showToast('Welcome, Asfaque!');
+        showDashboard();
+      } catch (err) {
+        alert(err.message);
+      }
+    });
+
+    elements.logoutBtn.addEventListener('click', () => {
+      adminToken = '';
+      localStorage.removeItem(ADMIN_TOKEN_KEY);
+      showLogin();
+    });
+
+    elements.refreshBtn.addEventListener('click', fetchUsers);
+
+    async function verifySession() {
+      try {
+        const res = await fetch('/api/admin/users', {
+          headers: { 'Authorization': 'Bearer ' + adminToken }
+        });
+        if (res.ok) {
+          showDashboard();
+        } else {
+          showLogin();
+        }
+      } catch (_) {
+        showLogin();
+      }
+    }
+
+    async function fetchUsers() {
+      try {
+        const res = await fetch('/api/admin/users', {
+          headers: { 'Authorization': 'Bearer ' + adminToken }
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to fetch users.');
+
+        renderUsers(data.users || []);
+      } catch (err) {
+        console.error('Fetch users error:', err);
+        showToast('Error loading users: ' + err.message);
+      }
+    }
+
+    function renderUsers(users) {
+      elements.totalUsersCount.textContent = users.length;
+      elements.approvedCount.textContent = users.filter(u => u.status === 'approved').length;
+      elements.pendingCount.textContent = users.filter(u => u.status === 'pending').length;
+      elements.blockedCount.textContent = users.filter(u => u.status === 'blocked').length;
+
+      const tbody = elements.usersTableBody;
+      tbody.innerHTML = '';
+
+      if (users.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="empty-state">No access requests yet. Share your URL with friends to see them here!</td></tr>`;
+        return;
+      }
+
+      users.forEach(u => {
+        const tr = document.createElement('tr');
+        const dateStr = u.requestedAt ? new Date(u.requestedAt).toLocaleString() : '-';
+
+        let badgeClass = 'badge-pending';
+        let badgeLabel = 'Pending';
+        if (u.status === 'approved') {
+          badgeClass = 'badge-approved';
+          badgeLabel = 'Active (Approved)';
+        } else if (u.status === 'blocked') {
+          badgeClass = 'badge-blocked';
+          badgeLabel = 'Blocked / Disabled';
+        }
+
+        let actionHtml = '';
+        if (u.status === 'pending') {
+          actionHtml = `
+            <button class="btn btn-success" onclick="handleAction('${u.id}', 'approve')">✅ Approve</button>
+            <button class="btn btn-danger" onclick="handleAction('${u.id}', 'block')">🚫 Block</button>
+          `;
+        } else if (u.status === 'approved') {
+          actionHtml = `
+            <button class="btn btn-danger" onclick="handleAction('${u.id}', 'block')">🚫 Block Access</button>
+          `;
+        } else if (u.status === 'blocked') {
+          actionHtml = `
+            <button class="btn btn-success" onclick="handleAction('${u.id}', 'unblock')">🔓 Unblock</button>
+          `;
+        }
+
+        actionHtml += `<button class="btn btn-secondary" onclick="handleAction('${u.id}', 'delete')" title="Delete user" style="padding: 6px 10px;">🗑️</button>`;
+
+        tr.innerHTML = `
+          <td><strong>${escapeHtml(u.name)}</strong></td>
+          <td>${escapeHtml(u.phone || '-')}</td>
+          <td><span class="badge ${badgeClass}">${badgeLabel}</span></td>
+          <td style="color: var(--text-muted); font-size: 12.5px;">${dateStr}</td>
+          <td style="text-align: right;"><div class="action-group" style="justify-content: flex-end;">${actionHtml}</div></td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    window.handleAction = async function(userId, action) {
+      if (action === 'delete' && !confirm('Are you sure you want to delete this user record?')) {
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/admin/action', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + adminToken,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ userId, action })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Action failed.');
+
+        showToast(`User successfully updated: ${action.toUpperCase()}`);
+        renderUsers(data.users || []);
+      } catch (err) {
+        alert(err.message);
+      }
+    };
+
+    function escapeHtml(str) {
+      return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

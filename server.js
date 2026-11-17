@@ -4,6 +4,8 @@ const path = require('path');
 const fs = require('fs');
 require('dotenv').config();
 
+const accessControl = require('./lib/accessControl');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -22,6 +24,11 @@ app.get('/asfaque-ai-assistant', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// Dedicated route for Admin Panel
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
 // Static assets (CSS, JS, icons) without default index.html hijack
 app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 
@@ -29,9 +36,83 @@ app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
-    message: 'My First AI Project server is running smoothly!',
+    message: 'Asfaque AI Assistant server is running smoothly!',
     hasEnvKey: !!process.env.GEMINI_API_KEY
   });
+});
+
+// ========================================================
+// Access Control & Admin API
+// ========================================================
+
+// 1. Check access status of a device
+app.get('/api/access/status', async (req, res) => {
+  try {
+    const deviceId = req.query.deviceId;
+    const result = await accessControl.checkDeviceAccess(deviceId);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 2. Request access (New user submits name & deviceId)
+app.post('/api/access/request', async (req, res) => {
+  try {
+    const { name, phone, deviceId } = req.body;
+    const result = await accessControl.requestAccess({ name, phone, deviceId });
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// 3. Admin login
+app.post('/api/admin/login', (req, res) => {
+  try {
+    const { password } = req.body;
+    if (password === accessControl.ADMIN_PASSWORD) {
+      return res.json({
+        success: true,
+        token: accessControl.getAdminToken(),
+        message: 'Admin authentication successful!'
+      });
+    }
+    return res.status(401).json({ error: 'Incorrect Admin Password!' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 4. Admin: Get all users
+app.get('/api/admin/users', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization || '';
+    const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+    if (!accessControl.verifyAdmin(token)) {
+      return res.status(401).json({ error: 'Unauthorized: Invalid Admin Token.' });
+    }
+    const users = await accessControl.loadUsers();
+    res.json({ users });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 5. Admin: Perform action (approve, block, unblock, delete)
+app.post('/api/admin/action', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization || '';
+    const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+    if (!accessControl.verifyAdmin(token)) {
+      return res.status(401).json({ error: 'Unauthorized: Invalid Admin Token.' });
+    }
+    const { userId, action } = req.body;
+    const result = await accessControl.performAdminAction(userId, action);
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
 });
 
 // Map deprecated model names to active Gemini 3.x models
@@ -112,10 +193,36 @@ async function callGemini(model, key, contents) {
   return { ok: response.ok, status: response.status, data, model };
 }
 
-// Chat endpoint with Gemini API and auto-resilience
+// Chat endpoint with Gemini API, auto-resilience, and access verification
 app.post('/api/chat', async (req, res) => {
   try {
-    let { message, history, apiKey, model, file } = req.body;
+    let { message, history, apiKey, model, file, deviceId, adminToken } = req.body;
+
+    // Check Access Authorization
+    const isAdmin = accessControl.verifyAdmin(adminToken);
+    if (!isAdmin) {
+      if (!deviceId) {
+        return res.status(401).json({
+          error: 'Access Required: Please request access to chat with Asfaque\'s AI Assistant.'
+        });
+      }
+      const access = await accessControl.checkDeviceAccess(deviceId);
+      if (access.status === 'blocked') {
+        return res.status(403).json({
+          error: '⛔ Access Revoked: Aapka access Asfaque dwara disable/block kar diya gaya hai. Kripya Asfaque se sampark karein.'
+        });
+      }
+      if (access.status === 'pending') {
+        return res.status(403).json({
+          error: '⏳ Access Pending: Aapki access request abhi Asfaque ke approval ke liye pending hai.'
+        });
+      }
+      if (access.status !== 'approved') {
+        return res.status(401).json({
+          error: 'Access Required: Kripya pehle Asfaque se access request karein.'
+        });
+      }
+    }
 
     if ((!message || typeof message !== 'string' || !message.trim()) && !file) {
       return res.status(400).json({ error: 'Please enter a message or upload a file.' });
@@ -233,16 +340,6 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 
-// Dedicated route for Asfaque's AI Assistant
-app.get('/asfaque-ai-assistant', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// Auto-redirect root to /asfaque-ai-assistant so the custom English name always appears in the URL bar
-app.get('/', (req, res) => {
-  res.redirect('/asfaque-ai-assistant');
-});
-
 // Serve index.html for all other routes
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -253,10 +350,9 @@ if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`\n=================================================`);
     console.log(`🚀 Asfaque's AI Assistant is LIVE!`);
-    console.log(`🌐 URL: http://localhost:${PORT}/asfaque-ai-assistant`);
-    console.log(`🌐 Custom Name: http://asfaque-ai-assistant:${PORT}/asfaque-ai-assistant`);
-    console.log(`📎 PDF & File Upload: ENABLED`);
-    console.log(`💻 Local File Path Detection: ENABLED`);
+    console.log(`🌐 Chat URL: http://localhost:${PORT}/asfaque-ai-assistant`);
+    console.log(`🛡️ Admin Panel: http://localhost:${PORT}/admin`);
+    console.log(`🔒 Access Control & Device Approval: ACTIVE`);
     console.log(`=================================================\n`);
   });
 }
