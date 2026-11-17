@@ -5,9 +5,9 @@
       "deviceId": "test_dev_1",
       "name": "Rahul Test",
       "phone": "9876543210",
-      "status": "pending",
+      "status": "approved",
       "requestedAt": "2026-11-17T12:18:30.041Z",
-      "approvedAt": null,
+      "approvedAt": "2026-11-17T12:18:31.104Z",
       "blockedAt": null
     }
   ]
