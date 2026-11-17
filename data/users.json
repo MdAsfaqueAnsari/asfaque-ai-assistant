@@ -19,16 +19,6 @@
       "requestedAt": "2026-11-17T13:04:48.502Z",
       "approvedAt": "2026-11-17T13:04:56.747Z",
       "blockedAt": null
-    },
-    {
-      "id": "usr_1794920765916_ies7",
-      "deviceId": "dev_1794920752160_k3ajd6k",
-      "name": "Vishal",
-      "phone": "1111",
-      "status": "approved",
-      "requestedAt": "2026-11-17T13:06:09.080Z",
-      "approvedAt": "2026-11-17T13:06:21.511Z",
-      "blockedAt": null
     }
   ]
 }
