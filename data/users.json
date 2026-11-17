@@ -5,10 +5,10 @@
       "deviceId": "dev_1794919268099_z8vz9nb",
       "name": "Vishal",
       "phone": "1111",
-      "status": "approved",
+      "status": "blocked",
       "requestedAt": "2026-11-17T13:04:35.119Z",
       "approvedAt": "2026-11-17T13:04:41.760Z",
-      "blockedAt": null
+      "blockedAt": "2026-11-17T13:27:44.186Z"
     },
     {
       "id": "usr_1794920688502_uofl",
