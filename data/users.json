@@ -59,6 +59,16 @@
       "requestedAt": "2026-11-17T13:33:10.232Z",
       "approvedAt": "2026-11-17T13:33:17.821Z",
       "blockedAt": null
+    },
+    {
+      "id": "usr_1794923344516_79e2",
+      "deviceId": "dev_1794923315542_7a7zqmo",
+      "name": "Niyamulhaque",
+      "phone": "8800279567",
+      "status": "pending",
+      "requestedAt": "2026-11-17T13:49:04.516Z",
+      "approvedAt": null,
+      "blockedAt": null
     }
   ]
 }
