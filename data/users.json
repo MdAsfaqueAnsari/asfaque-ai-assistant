@@ -21,16 +21,6 @@
       "blockedAt": null
     },
     {
-      "id": "usr_1794920761285_50z0",
-      "deviceId": "live_test_device_1794920760907",
-      "name": "Priya Sharma",
-      "phone": "8888877777",
-      "status": "blocked",
-      "requestedAt": "2026-11-17T13:06:01.285Z",
-      "approvedAt": "2026-11-17T13:06:03.121Z",
-      "blockedAt": "2026-11-17T13:06:04.647Z"
-    },
-    {
       "id": "usr_1794920765916_ies7",
       "deviceId": "dev_1794920752160_k3ajd6k",
       "name": "Vishal",
