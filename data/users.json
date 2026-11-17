@@ -55,9 +55,9 @@
       "deviceId": "dev_1794922345690_yzzgrtv",
       "name": "test",
       "phone": "1231122",
-      "status": "pending",
+      "status": "approved",
       "requestedAt": "2026-11-17T13:33:10.232Z",
-      "approvedAt": null,
+      "approvedAt": "2026-11-17T13:33:17.821Z",
       "blockedAt": null
     }
   ]
