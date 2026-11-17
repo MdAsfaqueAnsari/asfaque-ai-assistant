@@ -1,3 +1,14 @@
 {
-  "users": []
+  "users": [
+    {
+      "id": "usr_1794917910041_b4w1",
+      "deviceId": "test_dev_1",
+      "name": "Rahul Test",
+      "phone": "9876543210",
+      "status": "pending",
+      "requestedAt": "2026-11-17T12:18:30.041Z",
+      "approvedAt": null,
+      "blockedAt": null
+    }
+  ]
 }
