@@ -25,9 +25,9 @@
       "deviceId": "live_test_device_1794920760907",
       "name": "Priya Sharma",
       "phone": "8888877777",
-      "status": "pending",
+      "status": "approved",
       "requestedAt": "2026-11-17T13:06:01.285Z",
-      "approvedAt": null,
+      "approvedAt": "2026-11-17T13:06:03.121Z",
       "blockedAt": null
     }
   ]
