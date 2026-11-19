@@ -56,10 +56,10 @@
       "deviceId": "dev_1794922345690_yzzgrtv",
       "name": "test",
       "phone": "1231122",
-      "status": "blocked",
+      "status": "approved",
       "requestedAt": "2026-11-17T13:33:10.232Z",
-      "approvedAt": "2026-11-17T13:33:17.821Z",
-      "blockedAt": "2026-11-19T09:32:08.545Z"
+      "approvedAt": "2026-11-19T09:32:10.984Z",
+      "blockedAt": null
     },
     {
       "id": "usr_1794923344516_79e2",
