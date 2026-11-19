@@ -173,6 +173,22 @@ function startAccessPolling() {
       const res = await fetch(`/api/access/status?deviceId=${encodeURIComponent(state.deviceId)}&t=${Date.now()}`);
       if (!res.ok) return;
       const data = await res.json();
+
+      // If Master Service is stopped by Admin
+      if (data.serviceStatus === 'stopped') {
+        if (elements.accessGateModal) {
+          elements.accessGateModal.style.display = 'flex';
+          elements.accessIcon.textContent = '🛑';
+          elements.accessTitle.textContent = 'Service Currently Stopped';
+          elements.accessDesc.innerHTML = '<strong>Asfaque AI Assistant is currently STOPPED by Admin (Asfaque).</strong><br><br>Service temporary taur par band kar di gayi hai.<br>Jab Asfaque isko start karenge, yeh page automatically chalu ho jayega.';
+          elements.accessRequestForm.style.display = 'none';
+          elements.pendingActionArea.style.display = 'block';
+          if (elements.checkStatusBtn) elements.checkStatusBtn.textContent = '🔄 Check If Started';
+        }
+        if (elements.userInput) elements.userInput.disabled = true;
+        return;
+      }
+
       if (data.status === 'approved') {
         stopAccessPolling();
         state.accessStatus = 'approved';
@@ -245,8 +261,23 @@ async function checkAccessStatus() {
     const res = await fetch(`/api/access/status?deviceId=${encodeURIComponent(state.deviceId)}&t=${Date.now()}`);
     const data = await res.json();
     state.accessStatus = data.status;
+    state.serviceStatus = data.serviceStatus;
 
     if (!elements.accessGateModal) return;
+
+    // Check if Service is STOPPED by Admin (All users blocked)
+    if (data.serviceStatus === 'stopped') {
+      elements.accessGateModal.style.display = 'flex';
+      elements.accessIcon.textContent = '🛑';
+      elements.accessTitle.textContent = 'Service Currently Stopped';
+      elements.accessDesc.innerHTML = '<strong>Asfaque AI Assistant is currently STOPPED by Admin (Asfaque).</strong><br><br>Service temporary taur par band kar di gayi hai.<br>Jab Asfaque isko start karenge, yeh page automatically chalu ho jayega.';
+      elements.accessRequestForm.style.display = 'none';
+      elements.pendingActionArea.style.display = 'block';
+      if (elements.checkStatusBtn) elements.checkStatusBtn.textContent = '🔄 Check If Started';
+      elements.userInput.disabled = true;
+      startAccessPolling();
+      return;
+    }
 
     if (data.status === 'approved') {
       stopAccessPolling();

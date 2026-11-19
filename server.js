@@ -33,12 +33,46 @@ app.get('/admin', (req, res) => {
 app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 
 // Health check endpoint
-app.get('/api/health', (req, res) => {
+app.get('/api/health', async (req, res) => {
+  try {
+    await accessControl.loadUsers();
+  } catch (_) {}
   res.json({
     status: 'ok',
+    serviceStatus: accessControl.getServiceStatus(),
     message: 'Asfaque AI Assistant server is running smoothly!',
     hasEnvKey: !!process.env.GEMINI_API_KEY
   });
+});
+
+// Master System Service Status API
+app.get('/api/system/status', async (req, res) => {
+  try {
+    await accessControl.loadUsers();
+    res.json({ serviceStatus: accessControl.getServiceStatus() });
+  } catch (err) {
+    res.json({ serviceStatus: 'online' });
+  }
+});
+
+// Admin: Toggle Master Service Status (Online / Stopped)
+app.post('/api/admin/system/status', async (req, res) => {
+  try {
+    const { password, status } = req.body;
+    const authHeader = req.headers.authorization || '';
+    const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+    const isAuthed = (password === accessControl.ADMIN_PASSWORD) || accessControl.verifyAdmin(token);
+    if (!isAuthed) {
+      return res.status(401).json({ error: 'Incorrect Admin Password or Unauthorized' });
+    }
+    if (status !== 'online' && status !== 'stopped') {
+      return res.status(400).json({ error: 'Status must be online or stopped' });
+    }
+    const result = await accessControl.setServiceStatus(status);
+    return res.json({ success: true, serviceStatus: status, result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // ========================================================
@@ -198,8 +232,17 @@ app.post('/api/chat', async (req, res) => {
   try {
     let { message, history, apiKey, model, file, deviceId, adminToken } = req.body;
 
-    // Check Access Authorization
     const isAdmin = accessControl.verifyAdmin(adminToken);
+
+    // Check Master Service Status (Online vs Stopped)
+    const serviceStatus = accessControl.getServiceStatus();
+    if (serviceStatus === 'stopped' && !isAdmin) {
+      return res.status(503).json({
+        error: '🛑 Service Stopped: Asfaque AI Assistant ko Asfaque dwara temporarily band (STOP) kar diya gaya hai. Kripya Asfaque se sampark karein.'
+      });
+    }
+
+    // Check Access Authorization
     if (!isAdmin) {
       if (!deviceId) {
         return res.status(401).json({

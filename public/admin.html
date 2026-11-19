@@ -269,6 +269,25 @@
 
   <!-- Dashboard Container (Shown when authenticated) -->
   <main class="dashboard-container" id="dashboardView" style="display: none;">
+    <!-- Master System Status Control (Online / Stopped) -->
+    <div class="system-control-card" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <div id="systemStatusIcon" style="font-size: 32px;">🟢</div>
+        <div>
+          <div style="font-size: 12px; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;">Master System Control (All Devices)</div>
+          <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+            <span id="systemStatusLabel" style="font-size: 18px; font-weight: 700; color: var(--success);">SERVICE IS ONLINE</span>
+          </div>
+          <div id="systemStatusDesc" style="font-size: 12.5px; color: var(--text-secondary); margin-top: 2px;">All users can access and chat with AI Assistant smoothly.</div>
+        </div>
+      </div>
+      <div>
+        <button id="toggleServiceBtn" class="btn btn-danger" style="padding: 10px 22px; font-size: 14px; font-weight: 700; border-radius: 8px; cursor: pointer;">
+          🛑 STOP SERVICE (BLOCK ALL)
+        </button>
+      </div>
+    </div>
+
     <div class="stats-grid">
       <div class="stat-card">
         <span class="stat-title">Total Users</span>
@@ -330,7 +349,11 @@
       approvedCount: document.getElementById('approvedCount'),
       pendingCount: document.getElementById('pendingCount'),
       blockedCount: document.getElementById('blockedCount'),
-      usersTableBody: document.getElementById('usersTableBody')
+      usersTableBody: document.getElementById('usersTableBody'),
+      systemStatusIcon: document.getElementById('systemStatusIcon'),
+      systemStatusLabel: document.getElementById('systemStatusLabel'),
+      systemStatusDesc: document.getElementById('systemStatusDesc'),
+      toggleServiceBtn: document.getElementById('toggleServiceBtn')
     };
 
     function showToast(msg) {
@@ -374,11 +397,79 @@
       }
 
       fetchUsers();
+      fetchSystemStatus();
 
       // Realtime auto-polling every 3.5 seconds
       if (!window.adminPollTimer) {
-        window.adminPollTimer = setInterval(fetchUsers, 3500);
+        window.adminPollTimer = setInterval(() => {
+          fetchUsers();
+          fetchSystemStatus();
+        }, 3500);
       }
+    }
+
+    let currentServiceStatus = 'online';
+
+    async function fetchSystemStatus() {
+      try {
+        const res = await fetch('/api/system/status?t=' + Date.now());
+        const data = await res.json();
+        currentServiceStatus = data.serviceStatus || 'online';
+        updateSystemStatusUI(currentServiceStatus);
+      } catch (_) {}
+    }
+
+    function updateSystemStatusUI(status) {
+      currentServiceStatus = status;
+      if (!elements.systemStatusIcon) return;
+      if (status === 'stopped') {
+        elements.systemStatusIcon.textContent = '🔴';
+        elements.systemStatusLabel.textContent = 'SERVICE IS STOPPED (OFFLINE)';
+        elements.systemStatusLabel.style.color = 'var(--danger)';
+        elements.systemStatusDesc.textContent = 'All users are blocked from chatting. Screen shows Service Stopped.';
+        elements.toggleServiceBtn.textContent = '▶️ START SERVICE (ALLOW ALL)';
+        elements.toggleServiceBtn.className = 'btn btn-success';
+      } else {
+        elements.systemStatusIcon.textContent = '🟢';
+        elements.systemStatusLabel.textContent = 'SERVICE IS ONLINE';
+        elements.systemStatusLabel.style.color = 'var(--success)';
+        elements.systemStatusDesc.textContent = 'All users can access and chat with AI Assistant smoothly.';
+        elements.toggleServiceBtn.textContent = '🛑 STOP SERVICE (BLOCK ALL)';
+        elements.toggleServiceBtn.className = 'btn btn-danger';
+      }
+    }
+
+    if (elements.toggleServiceBtn) {
+      elements.toggleServiceBtn.addEventListener('click', async () => {
+        const targetStatus = currentServiceStatus === 'online' ? 'stopped' : 'online';
+        const confirmMsg = targetStatus === 'stopped' 
+          ? 'Are you sure you want to STOP the AI Assistant? All users across all devices will be immediately blocked.'
+          : 'Are you sure you want to START the AI Assistant? All users will be allowed to chat again.';
+        if (!confirm(confirmMsg)) return;
+
+        elements.toggleServiceBtn.disabled = true;
+        elements.toggleServiceBtn.textContent = 'Updating...';
+
+        try {
+          const res = await fetch('/api/admin/system/status', {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Bearer ' + adminToken,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ status: targetStatus })
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Failed to update system status.');
+          updateSystemStatusUI(data.serviceStatus);
+          showToast(targetStatus === 'stopped' ? '🔴 System Service STOPPED!' : '🟢 System Service ONLINE!');
+        } catch (err) {
+          alert(err.message);
+          fetchSystemStatus();
+        } finally {
+          elements.toggleServiceBtn.disabled = false;
+        }
+      });
     }
 
     // Login Submission
