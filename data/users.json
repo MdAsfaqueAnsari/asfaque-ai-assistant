@@ -1,5 +1,6 @@
 {
-  "serviceStatus": "online",
+  "serviceStatus": "stopped",
+  "updatedAt": "2026-11-19T09:04:04.248Z",
   "users": [
     {
       "id": "usr_1794920673548_bmyc",
