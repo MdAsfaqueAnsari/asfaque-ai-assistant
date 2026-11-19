@@ -14,18 +14,32 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Auto-redirect root to /asfaque-ai-assistant so custom name always appears in URL bar
+// Auto-redirect root to /asfaque-ai-assistant
 app.get('/', (req, res) => {
   res.redirect('/asfaque-ai-assistant');
 });
 
 // Dedicated route for Asfaque's AI Assistant
-app.get('/asfaque-ai-assistant', (req, res) => {
+app.get('/asfaque-ai-assistant', async (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+
+  try {
+    await accessControl.loadUsers();
+  } catch (_) {}
+
+  const serviceStatus = accessControl.getServiceStatus();
+  if (serviceStatus === 'stopped') {
+    return res.sendFile(path.join(__dirname, 'public', 'stopped.html'));
+  }
+
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Dedicated route for Admin Panel
+// Dedicated route for Admin Panel (always accessible for Asfaque)
 app.get('/admin', (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
   res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 

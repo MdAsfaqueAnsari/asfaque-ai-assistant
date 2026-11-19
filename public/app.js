@@ -238,7 +238,30 @@ function showApprovalNotification() {
 }
 
 async function checkAccessStatus() {
-  // If user has admin token saved, check admin session
+  // 1. Always verify Master System Status first (applies to EVERYONE)
+  try {
+    const sysRes = await fetch(`/api/system/status?t=${Date.now()}`);
+    if (sysRes.ok) {
+      const sysData = await sysRes.json();
+      if (sysData.serviceStatus === 'stopped') {
+        state.serviceStatus = 'stopped';
+        if (elements.accessGateModal) {
+          elements.accessGateModal.style.display = 'flex';
+          elements.accessIcon.textContent = '🛑';
+          elements.accessTitle.textContent = 'Service Currently Stopped';
+          elements.accessDesc.innerHTML = '<strong>Asfaque AI Assistant is currently STOPPED by Admin (Asfaque).</strong><br><br>Service temporary taur par band kar di gayi hai.<br>Jab Asfaque isko start karenge, yeh page automatically chalu ho jayega.';
+          elements.accessRequestForm.style.display = 'none';
+          elements.pendingActionArea.style.display = 'block';
+          if (elements.checkStatusBtn) elements.checkStatusBtn.textContent = '🔄 Check If Started';
+        }
+        if (elements.userInput) elements.userInput.disabled = true;
+        startAccessPolling();
+        return;
+      }
+    }
+  } catch (_) {}
+
+  // 2. If user has admin token saved, check admin session
   state.adminToken = localStorage.getItem(STORAGE_KEYS.ADMIN_TOKEN) || '';
   if (state.adminToken) {
     try {

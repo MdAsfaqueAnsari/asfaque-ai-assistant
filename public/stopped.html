@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Service Stopped | Asfaque's AI Assistant</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛑</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #121316;
+      --bg-card: #1c1e24;
+      --border-color: #2e323d;
+      --text-primary: #f0f3f6;
+      --text-secondary: #9da7b3;
+      --danger: #ef4444;
+      --accent: #4f46e5;
+      --accent-hover: #4338ca;
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font);
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    .stopped-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 44px 32px;
+      width: 100%;
+      max-width: 480px;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(239, 68, 68, 0.15);
+      animation: popIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.94); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .stop-icon {
+      font-size: 64px;
+      line-height: 1;
+      margin-bottom: 20px;
+      display: inline-block;
+      animation: pulseGlow 2.5s infinite ease-in-out;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.4)); }
+      50% { transform: scale(1.08); filter: drop-shadow(0 0 22px rgba(239, 68, 68, 0.7)); }
+    }
+
+    .title {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--danger);
+      margin-bottom: 12px;
+      letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+    }
+
+    .desc {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+
+    .desc strong {
+      color: var(--text-primary);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      border-radius: 20px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #fca5a5;
+      margin-bottom: 24px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--danger);
+    }
+
+    .btn-refresh {
+      width: 100%;
+      padding: 13px 20px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-refresh:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+
+    .auto-check-hint {
+      margin-top: 14px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .admin-link {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border-color);
+      font-size: 13px;
+    }
+
+    .admin-link a {
+      color: #818cf8;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+
+    .admin-link a:hover {
+      color: #a5b4fc;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="stopped-card">
+    <div class="stop-icon">🛑</div>
+    
+    <div class="status-badge">
+      <span class="dot"></span>
+      <span>SYSTEM STATUS: OFFLINE</span>
+    </div>
+
+    <h1 class="title">Service Currently Stopped</h1>
+    <div class="subtitle">Asfaque's AI Assistant is Turned OFF</div>
+
+    <p class="desc">
+      Asfaque ne AI Assistant ko temporarily <strong>STOP / BAND</strong> kar diya hai.<br><br>
+      Abhi kisi bhi device (mobile ya laptop) par chat access band hai. Jab Asfaque isko start karenge, yeh automatically chalu ho jayega.
+    </p>
+
+    <button class="btn-refresh" onclick="checkAndReload()">
+      <span>🔄</span>
+      <span>Refresh Page</span>
+    </button>
+
+    <div class="auto-check-hint" id="autoCheckText">Auto-checking every 3 seconds...</div>
+
+    <div class="admin-link">
+      <a href="/admin">🛡️ Admin Panel Login →</a>
+    </div>
+  </div>
+
+  <script>
+    // Auto-poll system status every 3 seconds; auto-reload as soon as Admin starts it!
+    setInterval(async () => {
+      try {
+        const res = await fetch('/api/system/status?t=' + Date.now(), { cache: 'no-store' });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.serviceStatus === 'online') {
+            document.getElementById('autoCheckText').textContent = '✅ Service is back ONLINE! Reloading...';
+            location.href = '/asfaque-ai-assistant';
+          }
+        }
+      } catch (_) {}
+    }, 3000);
+
+    function checkAndReload() {
+      location.href = '/asfaque-ai-assistant?t=' + Date.now();
+    }
+  </script>
+</body>
+</html>
