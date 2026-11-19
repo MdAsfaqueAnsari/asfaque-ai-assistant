@@ -26,7 +26,7 @@ app.get('/asfaque-ai-assistant', async (req, res) => {
   res.setHeader('Expires', '0');
 
   try {
-    await accessControl.loadUsers();
+    await accessControl.loadUsers(true);
   } catch (_) {}
 
   const serviceStatus = accessControl.getServiceStatus();
@@ -49,7 +49,7 @@ app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 // Health check endpoint
 app.get('/api/health', async (req, res) => {
   try {
-    await accessControl.loadUsers();
+    await accessControl.loadUsers(true);
   } catch (_) {}
   res.json({
     status: 'ok',
